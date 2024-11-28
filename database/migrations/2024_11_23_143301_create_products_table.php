@@ -23,7 +23,6 @@ return new class extends Migration
         $table->integer('totalQuantity')->nullable();
         $table->float('rate')->default(0);
         $table->timestamps();
-        // market id
     });
 }
 
