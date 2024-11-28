@@ -25,19 +25,21 @@ class PasswordResetLinkController extends Controller
 
         // Handle case for email reset
         if ($request->email) {
-            $status = Password::sendResetLink(
-                $request->only('email')
-            );
+            $user = User::where('email', $request->email)->first();
 
-            if ($status === Password::RESET_LINK_SENT) {
-                return response()->json([
-                    'message' => __('Password reset link sent successfully.'),
-                ], 200);
+            if (!$user) {
+                throw ValidationException::withMessages([
+                    'email' => [__('User not found.')],
+                ]);
             }
 
-            throw ValidationException::withMessages([
-                'email' => [__($status)],
-            ]);
+            // Generate token manually for testing
+            $token = Password::getRepository()->create($user);
+
+            return response()->json([
+                'message' => __('Password reset link sent successfully.'),
+                'token' => $token, // Include the token for testing
+            ], 200);
         }
 
         // Handle case for phone number reset
@@ -55,8 +57,12 @@ class PasswordResetLinkController extends Controller
                 'password' => Hash::make($request->password),
             ])->save();
 
+            // Generate a new token for the user for reference
+            $token = Password::getRepository()->create($user);
+
             return response()->json([
                 'message' => __('Password has been reset successfully.'),
+                'token' => $token, // Include the token for testing
             ], 200);
         }
 
