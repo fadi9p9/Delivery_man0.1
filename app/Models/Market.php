@@ -14,7 +14,8 @@ class Market extends Model
         'title',
         'location',
         'img',
-         'rate' 
+        'rate',
+        'rating'
     ];
 
     // Relationships

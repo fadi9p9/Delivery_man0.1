@@ -19,7 +19,8 @@ class Product extends Model
         'discount',
         'totalQuantity',
         'rate',
-         'marketId',
+        'rating',
+        'marketId',
     ];
 
     // Relationships
@@ -42,7 +43,8 @@ class Product extends Model
     {
         return $this->hasMany(CartItem::class, 'productId');
     }
-    public function market(){
+    public function market()
+    {
         return $this->belongsTo(Market::class, 'marketId');
     }
 }
