@@ -27,11 +27,7 @@ class NewPasswordController extends Controller
             'token' => ['required', 'string'],
             'email' => ['nullable', 'email', 'required_without:phoneNumber'],
             'phoneNumber' => ['nullable', 'string', 'required_without:email', 'regex:/^\+?[0-9]{10,15}$/'],
-            'password' => [
-                'required',
-                'confirmed',
-                PasswordRule::defaults()
-            ],
+            'password' => ['required','confirmed',PasswordRule::defaults()],
         ]);
 
         // Retrieve user based on email or phoneNumber

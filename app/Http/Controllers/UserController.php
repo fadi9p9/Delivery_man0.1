@@ -26,6 +26,12 @@ class UserController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,' . $user->id,
             'password' => 'nullable|string|min:8',
+            'phoneNumber' => 'nullable|string|max:15|unique:users,phoneNumber,' . $user->id,
+            'lastName' => 'required|string|max:255',
+            'role' => 'required|in:Admin,Customer,Vendor,DeliveryMan',
+            'location' => 'nullable|string|max:255',
+            'img' => 'nullable|string|max:255',
+            
         ]);
 
         if (isset($validated['password'])) {

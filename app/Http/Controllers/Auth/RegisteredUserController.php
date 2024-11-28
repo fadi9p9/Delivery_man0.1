@@ -24,7 +24,9 @@ class RegisteredUserController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'email' => ['nullable', 'string', 'email', 'max:255', 'unique:users'],
             'phoneNumber' => ['nullable', 'string', 'max:15', 'unique:users'],
+            'lastName' => [ 'string', 'max:255'],
             'password' => ['required', Rules\Password::defaults()],
+
         ]);
 
         if (!$request->email && !$request->phoneNumber) {
@@ -36,6 +38,11 @@ class RegisteredUserController extends Controller
             'email' => $request->email ? strtolower($request->email) : null,
             'phoneNumber' => $request->phoneNumber,
             'password' => Hash::make($request->password),
+            'lastName' => $request->lastName,
+            'role' => 'Customer',
+            'location' => null,
+            'img' => null,
+
         ]);
 
         event(new Registered($user));
