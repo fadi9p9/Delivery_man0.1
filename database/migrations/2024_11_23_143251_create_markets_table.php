@@ -18,6 +18,7 @@ return new class extends Migration
         $table->string('location', 255)->nullable();
         $table->string('img', 255)->nullable();
         $table->float('rating')->default(0);
+        $table->unsignedInteger('rating_count')->default(0);
         $table->timestamps();
         
     });

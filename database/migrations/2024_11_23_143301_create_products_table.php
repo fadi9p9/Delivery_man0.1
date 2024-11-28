@@ -22,6 +22,7 @@ return new class extends Migration
         $table->string('size', 50)->nullable();
         $table->integer('totalQuantity')->nullable();
         $table->float('rate')->default(0);
+        $table->unsignedInteger('rating_count')->default(0);
         $table->timestamps();
     });
 }
