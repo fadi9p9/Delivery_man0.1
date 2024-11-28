@@ -51,4 +51,38 @@ class MarketController extends Controller
         $market->delete();
         return response()->json(['message' => 'Market deleted successfully']);
     }
+
+    public function rateMarket(Request $request, $id)
+    {
+        $market = Market::findOrFail($id);
+
+        // Validate the rating input
+        $validatedData = $request->validate([
+            'rating' => 'required|numeric|min:1|max:5',
+        ]);
+
+        // Update the market's rating
+        $market->rate = ($market->rate * $market->rating_count + $validatedData['rating']) / ($market->rating_count + 1);
+        $market->rating_count += 1;
+        $market->save();
+
+        return response()->json([
+            'message' => 'Market rated successfully',
+            'market' => $market,
+        ]);
+    }
+
+    /**
+     * Return top-rated markets.
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function topRatedMarkets(Request $request)
+    {
+        $limit = $request->get('limit', 12); 
+        $markets = Market::orderBy('rate', 'desc')->take($limit)->get();
+
+        return response()->json($markets);
+    }
 }

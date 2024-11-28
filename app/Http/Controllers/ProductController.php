@@ -113,4 +113,47 @@ class ProductController extends Controller
             'message' => 'Product deleted successfully',
         ]);
     }
+
+    // new modified 
+
+    /**
+     * Allow users to rate a product.
+     *
+     * @param Request $request
+     * @param int $id
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function rateProduct(Request $request, $id)
+    {
+        $product = Product::findOrFail($id);
+
+        // Validate the rating input
+        $validatedData = $request->validate([
+            'rating' => 'required|numeric|min:1|max:5',
+        ]);
+
+        // Update the product's rating
+        $product->rate = ($product->rate * $product->rating_count + $validatedData['rating']) / ($product->rating_count + 1);
+        $product->rating_count += 1;
+        $product->save();
+
+        return response()->json([
+            'message' => 'Product rated successfully',
+            'product' => $product,
+        ]);
+    }
+
+    /**
+     * Return top-rated products.
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function topRatedProducts(Request $request)
+    {
+        $limit = $request->get('limit', 12); 
+        $products = Product::orderBy('rate', 'desc')->take($limit)->get();
+
+        return response()->json($products);
+    }
 }
