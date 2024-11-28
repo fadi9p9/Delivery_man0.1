@@ -14,15 +14,16 @@ return new class extends Migration
     Schema::create('products', function (Blueprint $table) {
         $table->id();
         $table->foreignId('subcategoryId')->constrained('subcategories')->onDelete('cascade');
+        $table->foreignId('marketId')->constrained('markets')->onDelete('cascade');
         $table->string('title', 100);
         $table->text('description')->nullable();
         $table->decimal('price', 10, 2);
         $table->decimal('discount', 5, 2)->nullable();
         $table->string('size', 50)->nullable();
         $table->integer('totalQuantity')->nullable();
-        $table->decimal('rate', 3, 2)->default(0);
+        $table->float('rate')->default(0);
         $table->timestamps();
-        // market id 
+        // market id
     });
 }
 

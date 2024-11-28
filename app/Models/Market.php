@@ -14,12 +14,17 @@ class Market extends Model
         'title',
         'location',
         'img',
-        // rate 
+         'rate' 
     ];
 
     // Relationships
     public function user()
     {
         return $this->belongsTo(User::class, 'userId');
+    }
+
+    public function products()
+    {
+        return $this->hasMany(Product::class, 'productId');
     }
 }
