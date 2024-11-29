@@ -2,9 +2,15 @@
 
 namespace Database\Seeders;
 
+use App\Models\CartItem;
+use App\Models\Category;
+use App\Models\Favorite;
+use App\Models\Market;
 use App\Models\User;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+
+use function Pest\Laravel\call;
 
 class DatabaseSeeder extends Seeder
 {
@@ -13,11 +19,23 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
+        $this->call([
+            UserSeeder::class,
+            CategorySeeder::class,
+            SubcategorySeeder::class,
+            MarketSeeder::class,
+            ProductSeeder::class,
+            productImageSeeder::class,
+            CartSeeder::class,
+            CartItemSeeder::class,
+            OrderSeeder::class,
+            FavoriteSeeder::class,
 
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
         ]);
+
+        // User::factory()->create([
+        //     'name' => 'Test User',
+        //     'email' => 'test@example.com',
+        // ]);
     }
 }

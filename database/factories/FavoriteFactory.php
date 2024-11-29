@@ -2,6 +2,9 @@
 
 namespace Database\Factories;
 
+use App\Models\Favorite;
+use App\Models\Product;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -17,7 +20,11 @@ class FavoriteFactory extends Factory
     public function definition(): array
     {
         return [
-            //
+            // 'favoriteId'=>$this->faker->unique()->numberBetween(1, 100),
+            'userId' => User::factory(),
+            'productId' => Product::factory(),
+            'created_at' => now(),
+            'updated_at' => now(),
         ];
     }
 }
