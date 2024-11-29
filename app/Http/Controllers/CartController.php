@@ -10,7 +10,7 @@ class CartController extends Controller
 {
     public function index(Request $request)
     {
-        $carts = Cart::with('items.product')->paginate($request->get('per_page', 16));
+        $carts = Cart::with('cartItems')->paginate($request->get('per_page', 16));
         return response()->json($carts);
     }
 

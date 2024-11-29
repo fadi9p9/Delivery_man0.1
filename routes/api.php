@@ -73,11 +73,9 @@ Route::get('products/top-rated', [ProductController::class, 'topRatedProducts'])
 Route::apiResource('images', productImageController::class);
 
 // Carts routes
-Route::get('/carts', [CartController::class, 'index'])->name('carts.index');
-Route::post('/carts', [CartController::class, 'store'])->name('carts.store');
+Route::apiResource('carts', CartController::class);
 Route::post('/carts/{cart}/add-item', [CartController::class, 'addItem'])->name('carts.addItem');
 Route::delete('/carts/{cart}/remove-item/{item}', [CartController::class, 'removeItem'])->name('carts.removeItem');
-Route::delete('/carts/{cart}', [CartController::class, 'destroy'])->name('carts.destroy');
 
 // Cart items routes
 Route::apiResource('cart-items', CartItemController::class);
