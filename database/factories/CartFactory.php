@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -17,7 +18,12 @@ class CartFactory extends Factory
     public function definition(): array
     {
         return [
-            //
+            // 'id' => $this->faker->unique()->randomNumber(),
+            'userId' => User::factory(),
+             // إذا كان هناك علاقة بـ users
+            // 'status' => $this->faker->randomElement(['pending', 'completed', 'cancelled']),
+            'created_at' => now(),
+            'updated_at' => now(), 
         ];
     }
 }

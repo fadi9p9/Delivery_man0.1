@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\Category;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -17,7 +18,11 @@ class SubcategoryFactory extends Factory
     public function definition(): array
     {
         return [
-            //
+            // 'id' => $this->faker->unique()->numberBetween(1, 100),
+            'categoryId' => Category::factory(),
+            'name' => $this->faker->word,
+            'created_at' => now(),
+            'updated_at' => now(),
         ];
     }
 }
