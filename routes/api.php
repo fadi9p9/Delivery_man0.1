@@ -101,6 +101,8 @@ Route::get('/get-updates', [PasswordResetLinkController::class, 'getChatId']);
 
 Route::get('/categories/{id}/markets', [CategoryController::class, 'markets']);
 // GET /api/categories/1/markets?search=laptop&page=2&per_page=5
-
+// GET /api/categories/1/markets
+ 
 Route::get('/markets/{id}/categories', [MarketController::class, 'categories']);
 // GET /api/markets/1/categories?search=electronics&page=1&per_page=10
+// GET /api/markets/1/categories
