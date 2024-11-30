@@ -28,4 +28,18 @@ class Market extends Model
     {
         return $this->hasMany(Product::class, 'productId');
     }
+
+    // 
+    // علاقة المتجر بالتصنيفات (عبر Subcategories والمنتجات)
+    public function categories()
+    {
+        return $this->hasManyThrough(
+            Category::class,
+            Product::class,
+            'market_id',       // المفتاح الأجنبي في Products الذي يشير إلى Market
+            'id',              // المفتاح الأساسي في Category
+            'id',              // المفتاح الأساسي في Market
+            'subcategory_id'   // المفتاح الأجنبي في Products الذي يشير إلى Subcategory
+        );
+    }
 }
