@@ -9,6 +9,7 @@ class FavoriteController extends Controller
 {
     public function index(Request $request, $userId)
     {
+
         $favorites = Favorite::where('userId', $userId)->with('product')->paginate($request->get('per_page', 16));
         return response()->json($favorites);
     }

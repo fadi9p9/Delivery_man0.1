@@ -33,7 +33,7 @@ class CartController extends Controller
 
         $cart = Cart::findOrFail($cartId);
         $item = new CartItem($validated);
-        $cart->items()->save($item);
+        $cart->cartItems()->save($item);
 
         return response()->json(['message' => 'Item added to cart', 'item' => $item]);
     }
@@ -41,7 +41,7 @@ class CartController extends Controller
     public function removeItem($cartId, $itemId)
     {
         $cart = Cart::findOrFail($cartId);
-        $item = $cart->items()->findOrFail($itemId);
+        $item = $cart->cartItems()->findOrFail($itemId);
         $item->delete();
 
         return response()->json(['message' => 'Item removed from cart']);

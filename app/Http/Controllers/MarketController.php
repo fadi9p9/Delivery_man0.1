@@ -16,7 +16,8 @@ class MarketController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
+            'userId'=>'required|exists:users,id',
+            'title' => 'required|string|max:255',
             'location' => 'nullable|string|max:255',
             'description' => 'nullable|string',
             
@@ -36,7 +37,8 @@ class MarketController extends Controller
     {
         $market = Market::findOrFail($id);
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
+            // 'userId'=>'required|exists:users,id',
+            'title' => 'required|string|max:255',
             'location' => 'nullable|string|max:255',
             'description' => 'nullable|string',
         ]);
@@ -62,7 +64,7 @@ class MarketController extends Controller
         ]);
 
         // Update the market's rating
-        $market->rate = ($market->rate * $market->rating_count + $validatedData['rating']) / ($market->rating_count + 1);
+        $market->rating = ($market->rate * $market->rating_count + $validatedData['rating']) / ($market->rating_count + 1);
         $market->rating_count += 1;
         $market->save();
 
@@ -81,7 +83,7 @@ class MarketController extends Controller
     public function topRatedMarkets(Request $request)
     {
         $limit = $request->get('limit', 12); 
-        $markets = Market::orderBy('rate', 'desc')->take($limit)->get();
+        $markets = Market::orderBy('rating', 'desc')->take($limit)->get();
 
         return response()->json($markets);
     }

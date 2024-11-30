@@ -10,8 +10,7 @@ class Category extends Model
     use HasFactory;
 
     protected $fillable = [
-        'title',
-        'img',
+        'name'
     ];
 
     // Relationships

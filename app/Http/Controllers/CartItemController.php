@@ -32,7 +32,7 @@ class CartItemController extends Controller
             'quantity' => 'required|integer|min:1',
         ]);
 
-        $cartItem->update($validated);
+        $cartItem->update($validated);  
         return response()->json(['message' => 'Cart item updated successfully', 'cartItem' => $cartItem]);
     }
 

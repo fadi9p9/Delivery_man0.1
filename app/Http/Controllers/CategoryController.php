@@ -16,8 +16,8 @@ class CategoryController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'title' => 'required|string|max:255',
-            'img' => 'nullable|string|max:255',
+            'name' => 'required|string|max:255',
+            // 'img' => 'nullable|string|max:255',
         ]);
 
         $category = Category::create($validated);
@@ -34,8 +34,8 @@ class CategoryController extends Controller
     {
         $category = Category::findOrFail($id);
         $validated = $request->validate([
-            'title' => 'required|string|max:255',
-            'img' => 'nullable|string|max:255',
+            'name' => 'required|string|max:255',
+            
         ]);
 
         $category->update($validated);
