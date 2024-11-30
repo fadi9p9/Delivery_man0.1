@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 
 class FavoriteController extends Controller
 {
-    public function index(Request $request, $userId)
+    public function userFavorite(Request $request, $userId)
     {
 
         $favorites = Favorite::where('userId', $userId)->with('product')->paginate($request->get('per_page', 16));
