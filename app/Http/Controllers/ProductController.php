@@ -19,10 +19,12 @@ class ProductController extends Controller
 
         if ($request->has('search') && $request->search != '') {
             $query->where('title', 'like', '%' . $request->search . '%')
-                  ->orWhere('description', 'like', '%' . $request->search . '%');
+                ->orWhere('description', 'like', '%' . $request->search . '%');
         }
 
-        $products = $query->paginate($request->get('per_page', 16));
+        $products = $query->with(['images' => function ($query) {
+            $query->take(1); 
+        }])->paginate($request->get('per_page', 16));
 
         return response()->json($products);
     }
@@ -36,6 +38,7 @@ class ProductController extends Controller
     public function store(Request $request)
     {
         $validatedData = $request->validate([
+            'marketId' => 'required|exists:markets,id',
             'subcategoryId' => 'required|exists:subcategories,id',
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
@@ -44,16 +47,26 @@ class ProductController extends Controller
             'discount' => 'nullable|numeric|min:0|max:100',
             'totalQuantity' => 'required|integer|min:0',
             'rate' => 'nullable|numeric|min:0|max:5',
-            // market id 
+            'images' => 'nullable|array',
+            'images.*' => 'image|mimes:jpeg,png,jpg|max:2048',
         ]);
 
         $product = Product::create($validatedData);
 
+        if ($request->has('images')) {
+            foreach ($request->file('images') as $image) {
+                $path = $image->store('products', 'public'); 
+                $product->images()->create(['path' => $path]);
+            }
+        }
+
         return response()->json([
             'message' => 'Product created successfully',
             'product' => $product,
+            'images' => $product->images,
         ], 201);
     }
+
 
     /**
      * Display the specified product.
@@ -63,10 +76,14 @@ class ProductController extends Controller
      */
     public function show($id)
     {
-        $product = Product::findOrFail($id);
+        $product = Product::with('images')->findOrFail($id);
 
-        return response()->json($product);
+        return response()->json([
+            'product' => $product,
+            'images' => $product->images,
+        ]);
     }
+
 
     /**
      * Update the specified product in storage.
@@ -77,9 +94,10 @@ class ProductController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $product = Product::findOrFail($id);
+        $product = Product::with('images')->findOrFail($id);
 
         $validatedData = $request->validate([
+            'marketId' => 'nullable|exists:markets,id',
             'subcategoryId' => 'nullable|exists:subcategories,id',
             'title' => 'nullable|string|max:255',
             'description' => 'nullable|string',
@@ -88,15 +106,26 @@ class ProductController extends Controller
             'discount' => 'nullable|numeric|min:0|max:100',
             'totalQuantity' => 'nullable|integer|min:0',
             'rate' => 'nullable|numeric|min:0|max:5',
+            'images' => 'nullable|array',
+            'images.*' => 'image|mimes:jpeg,png,jpg|max:2048',
         ]);
 
         $product->update($validatedData);
 
+        if ($request->has('images')) {
+            foreach ($request->file('images') as $image) {
+                $path = $image->store('products', 'public'); 
+                $product->images()->create(['path' => $path]);
+            }
+        }
+
         return response()->json([
             'message' => 'Product updated successfully',
             'product' => $product,
+            'images' => $product->images,
         ]);
     }
+
 
     /**
      * Remove the specified product from storage.
@@ -151,7 +180,7 @@ class ProductController extends Controller
      */
     public function topRatedProducts(Request $request)
     {
-        $limit = $request->get('limit', 12); 
+        $limit = $request->get('limit', 12);
         $products = Product::orderBy('rate', 'desc')->take($limit)->get();
 
         return response()->json($products);
