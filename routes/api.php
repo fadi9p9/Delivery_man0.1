@@ -19,7 +19,7 @@ use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\VerifyEmailController;
 use App\Http\Controllers\TelegramController;
-
+use App\Http\Middleware\CheckAdmin;
 
 Route::post('/register', [RegisteredUserController::class, 'store'])
     ->middleware('guest')
