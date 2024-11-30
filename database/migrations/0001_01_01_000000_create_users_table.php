@@ -14,12 +14,11 @@ return new class extends Migration
         Schema::create('users', function (Blueprint $table) {
             $table->id();
             $table->string('name', 50);
-            $table->string('lastName', 50);
+            $table->string('lastName', 50)->nullable();
             $table->string('email', 100)->unique()->nullable();
             $table->string('phoneNumber', 15)->nullable();
-            // $table->string('firstName', 50)->nullable();//
             $table->string('password', 255);
-            $table->string('img', 255)->nullable();
+            $table->string('img', 255)->nullable(); // user avatar image as a default
             $table->enum('role', ['Admin', 'Customer', 'Vendor','DeliveryMan'])->default('Customer');
             $table->string('location', 255)->nullable();
             $table->rememberToken();
