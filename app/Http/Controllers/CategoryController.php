@@ -48,4 +48,22 @@ class CategoryController extends Controller
         $category->delete();
         return response()->json(['message' => 'Category deleted successfully']);
     }
+
+    // new function
+    /**
+     * Get all markets selling products in a specific category.
+     *
+     * @param int $id
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function markets($id)
+    {
+        $category = Category::with('subcategories.products.market')->findOrFail($id);
+
+        $markets = $category->subcategories->flatMap(function ($subcategory) {
+            return $subcategory->products->pluck('market');
+        })->unique('id')->values();
+
+        return response()->json($markets);
+    }
 }

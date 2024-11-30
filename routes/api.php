@@ -95,3 +95,8 @@ Route::apiResource('favorites', FavoriteController::class);
 Route::post('/send-verification-code', [TelegramController::class, 'sendVerificationCode']);
 
 Route::get('/get-updates', [PasswordResetLinkController::class, 'getChatId']);
+
+// new routes 
+Route::get('/categories/{id}/markets', [CategoryController::class, 'markets']);
+
+Route::get('/markets/{id}/categories', [MarketController::class, 'categories']);

@@ -85,4 +85,22 @@ class MarketController extends Controller
 
         return response()->json($markets);
     }
+
+    // new function 
+    /**
+     * Get all categories that a market sells products in.
+     *
+     * @param int $id
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function categories($id)
+    {
+        $market = Market::with('products.subcategory.category')->findOrFail($id);
+
+        $categories = $market->products->flatMap(function ($product) {
+            return $product->subcategory->category;
+        })->unique('id')->values();
+
+        return response()->json($categories);
+    }
 }
