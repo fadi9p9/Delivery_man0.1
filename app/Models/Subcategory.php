@@ -11,8 +11,8 @@ class Subcategory extends Model
 
     protected $fillable = [
         'categoryId',
-        'title',
-        'img',
+        'name',
+        
     ];
 
     // Relationships
