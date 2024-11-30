@@ -97,6 +97,9 @@ Route::post('/send-verification-code', [TelegramController::class, 'sendVerifica
 Route::get('/get-updates', [PasswordResetLinkController::class, 'getChatId']);
 
 // new routes 
+
 Route::get('/categories/{id}/markets', [CategoryController::class, 'markets']);
+// GET /api/categories/1/markets?search=laptop&page=2&per_page=5
 
 Route::get('/markets/{id}/categories', [MarketController::class, 'categories']);
+// GET /api/markets/1/categories?search=electronics&page=1&per_page=10
