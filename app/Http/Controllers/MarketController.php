@@ -88,19 +88,54 @@ class MarketController extends Controller
 
     // new function 
     /**
-     * Get all categories that a market sells products in.
+     * Get all categories that a market sells products in with pagination and optional search.
      *
      * @param int $id
+     * @param Request $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function categories($id)
+    public function categories($id, Request $request)
     {
         $market = Market::with('products.subcategory.category')->findOrFail($id);
 
+        // استخراج التصنيفات من المنتجات
         $categories = $market->products->flatMap(function ($product) {
             return $product->subcategory->category;
         })->unique('id')->values();
 
-        return response()->json($categories);
+        // البحث
+        if ($request->has('search') && $request->search != '') {
+            $categories = $categories->filter(function ($category) use ($request) {
+                return stripos($category->name, $request->search) !== false;
+            });
+        }
+
+        // Pagination
+        $perPage = $request->get('per_page', 16);  // افتراضيًا 16 تصنيفات لكل صفحة
+        $categoriesPaginated = $categories->forPage($request->get('page', 1), $perPage);
+
+        return response()->json([
+            'data' => $categoriesPaginated,
+            'current_page' => $request->get('page', 1),
+            'per_page' => $perPage,
+            'total' => $categories->count(),
+        ]);
     }
 }
+
+// /**
+//  * Get all categories that a market sells products in.
+//  *
+//  * @param int $id
+//  * @return \Illuminate\Http\JsonResponse
+//  */
+// public function categories($id)
+// {
+//     $market = Market::with('products.subcategory.category')->findOrFail($id);
+
+//     $categories = $market->products->flatMap(function ($product) {
+//         return $product->subcategory->category;
+//     })->unique('id')->values();
+
+//     return response()->json($categories);
+// }
