@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Validation\ValidationException;
 use App\Models\User;
@@ -12,15 +11,14 @@ use App\Models\User;
 class PasswordResetLinkController extends Controller
 {
     /**
-     * Handle a password reset request.
+     * Handle a password reset request (sending the token).
      */
     public function store(Request $request)
     {
-        // Validate the request
+        // Validate the input (email or phone number)
         $request->validate([
             'email' => ['nullable', 'email', 'required_without:phoneNumber'],
             'phoneNumber' => ['nullable', 'string', 'required_without:email', 'regex:/^\+?[0-9]{10,15}$/'],
-            'password' => ['nullable', 'confirmed', 'required_with:phoneNumber'],
         ]);
 
         // Handle case for email reset
@@ -33,12 +31,16 @@ class PasswordResetLinkController extends Controller
                 ]);
             }
 
-            // Generate token manually for testing
+            // Generate reset token
             $token = Password::getRepository()->create($user);
 
+            // Send the email
+            \Illuminate\Support\Facades\Mail::to($user->email)->send(
+                new \App\Mail\TestMail($token)
+            );
+
             return response()->json([
-                'message' => __('Password reset link sent successfully.'),
-                'token' => $token, // Include the token for testing
+                'message' => __('Password reset link sent successfully to email.'),
             ], 200);
         }
 
@@ -52,22 +54,43 @@ class PasswordResetLinkController extends Controller
                 ]);
             }
 
-            // Update password directly
-            $user->forceFill([
-                'password' => Hash::make($request->password),
-            ])->save();
-
-            // Generate a new token for the user for reference
+            // Generate reset token
             $token = Password::getRepository()->create($user);
 
+            // Send SMS
+            $this->sendSms($user->phoneNumber, __('Your reset token is: ') . $token);
+
             return response()->json([
-                'message' => __('Password has been reset successfully.'),
-                'token' => $token, // Include the token for testing
+                'message' => __('Password reset token sent successfully via SMS.'),
             ], 200);
         }
 
         throw ValidationException::withMessages([
             'error' => [__('Invalid request.')],
         ]);
+    }
+
+    /**
+     * Send SMS to the user.
+     */
+    protected function sendSms($phoneNumber, $message)
+    {
+        $apiUsername = env('SMS_API_USERNAME');
+        $apiPassword = env('SMS_API_PASSWORD');
+
+        $client = new \GuzzleHttp\Client();
+
+        $response = $client->post('https://api.46elks.com/a1/SMS', [
+            'auth' => [$apiUsername, $apiPassword],
+            'form_params' => [
+                'from' => 'YourApp',
+                'to' => $phoneNumber,
+                'message' => $message,
+            ],
+        ]);
+
+        if ($response->getStatusCode() !== 200) {
+            throw new \Exception(__('Failed to send SMS.'));
+        }
     }
 }
