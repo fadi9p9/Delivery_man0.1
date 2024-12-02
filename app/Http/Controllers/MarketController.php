@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Category;
 use App\Models\Market;
 use Illuminate\Http\Request;
 
@@ -101,9 +102,24 @@ class MarketController extends Controller
         $market = Market::with('products.subcategory.category')->findOrFail($id);
 
         // استخراج التصنيفات من المنتجات
-        $categories = $market->products->flatMap(function ($product) {
-            return $product->subcategory->category;
-        })->unique('id')->values();
+        // $categories = $market->products->flatMap(function ($product) {
+        //     return $product->subcategory->pluck('categoryId');
+        // })->unique('id')->values();
+        // return response()->json($categories);
+
+        // ا��تخرا�� التصنيفات من المنتجات التي تمتلكها المتا��ر بمعرف المتجر
+        // $categories = Category::whereHas('subcategories.products', function ($query) use ($id) {
+        //     $query->where('market_id', $id);
+        // })->get();
+
+        // ا��تخرا�� التصنيفات من المنتجات التي تمتلكها المتا��ر با��تخدام ��ريقة eager loading
+        // $categories = Category::with(['subcategories.products' => function ($query) use ($id) {
+        //     $query->where('market_id', $id);
+        // }])->get();
+
+        $categories = Category::whereHas('subcategories.products', function ($query) use ($id) {
+            $query->where('marketId', $id);
+        })->get();
 
         // البحث
         if ($request->has('search') && $request->search != '') {
@@ -113,7 +129,7 @@ class MarketController extends Controller
         }
 
         // Pagination
-        $perPage = $request->get('per_page', 16);  // افتراضيًا 16 تصنيفات لكل صفحة
+        $perPage = $request->get('per_page', 16);  
         $categoriesPaginated = $categories->forPage($request->get('page', 1), $perPage);
 
         return response()->json([
@@ -124,20 +140,3 @@ class MarketController extends Controller
         ]);
     }
 }
-
-// /**
-//  * Get all categories that a market sells products in.
-//  *
-//  * @param int $id
-//  * @return \Illuminate\Http\JsonResponse
-//  */
-// public function categories($id)
-// {
-//     $market = Market::with('products.subcategory.category')->findOrFail($id);
-
-//     $categories = $market->products->flatMap(function ($product) {
-//         return $product->subcategory->category;
-//     })->unique('id')->values();
-
-//     return response()->json($categories);
-// }

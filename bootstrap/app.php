@@ -18,6 +18,11 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $middleware->alias([
             'verified' => \App\Http\Middleware\EnsureEmailIsVerified::class,
+            'checkAdmin' => \App\Http\Middleware\CheckAdmin::class,
+            'checkDeliveryMan' => \App\Http\Middleware\CheckDeliveryMan::class,
+            'checkVendor' => \App\Http\Middleware\CheckVendor::class,
+            'ensureTokenIsValid' => \App\Http\Middleware\EnsureTokenIsValid::class,
+            'redirectIfAuthenticated' => \App\Http\Middleware\RedirectIfAuthenticated::class,
         ]);
 
         //
