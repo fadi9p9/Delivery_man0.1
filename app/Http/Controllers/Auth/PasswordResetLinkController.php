@@ -74,23 +74,25 @@ class PasswordResetLinkController extends Controller
      * Send SMS to the user.
      */
     protected function sendSms($phoneNumber, $message)
-    {
-        $apiUsername = env('SMS_API_USERNAME');
-        $apiPassword = env('SMS_API_PASSWORD');
+{
+    // قم بجلب معلومات الحساب من ملف .env
+    $accountSid = env('TWILIO_SID'); // معرف الحساب
+    $authToken = env('TWILIO_AUTH_TOKEN'); // رمز التوثيق
+    $twilioNumber = env('TWILIO_PHONE_NUMBER'); // رقم Twilio المرسل
 
-        $client = new \GuzzleHttp\Client();
+    $client = new \Twilio\Rest\Client($accountSid, $authToken);
 
-        $response = $client->post('https://api.46elks.com/a1/SMS', [
-            'auth' => [$apiUsername, $apiPassword],
-            'form_params' => [
-                'from' => 'YourApp',
-                'to' => $phoneNumber,
-                'message' => $message,
-            ],
-        ]);
-
-        if ($response->getStatusCode() !== 200) {
-            throw new \Exception(__('Failed to send SMS.'));
-        }
+    try {
+        $client->messages->create(
+            $phoneNumber= request()->phoneNumber, // رقم المستلم
+            [
+                'from' => $twilioNumber, // الرقم المرسل
+                'body' => $message,     // نص الرسالة
+            ]
+        );
+    } catch (\Exception $e) {
+        throw new \Exception(__('Failed to send SMS: ') . $e->getMessage());
     }
+}
+
 }

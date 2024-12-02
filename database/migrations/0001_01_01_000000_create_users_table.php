@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('name', 50);
             $table->string('lastName', 50)->nullable();
             $table->string('email', 100)->unique()->nullable();
-            $table->string('phoneNumber', 15)->nullable();
+            $table->string('phoneNumber', 15)->unique()->nullable();
             $table->string('password', 255);
             $table->string('img', 255)->nullable(); // user avatar image as a default
             $table->enum('role', ['Admin', 'Customer', 'Vendor','DeliveryMan'])->default('Customer');
@@ -27,7 +27,8 @@ return new class extends Migration
         });
 
         Schema::create('password_reset_tokens', function (Blueprint $table) {
-            $table->string('email')->primary();
+            $table->string('email')->unique()->nullable();
+            $table->string('phoneNumber')->unique()->nullable();
             $table->string('token');
             $table->timestamp('created_at')->nullable();
         });
