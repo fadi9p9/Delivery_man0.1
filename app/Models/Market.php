@@ -26,7 +26,7 @@ class Market extends Model
 
     public function products()
     {
-        return $this->hasMany(Product::class, 'productId');
+        return $this->hasMany(Product::class, 'marketId');
     }
 
     // 
@@ -36,10 +36,10 @@ class Market extends Model
         return $this->hasManyThrough(
             Category::class,
             Product::class,
-            'market_id',       // المفتاح الأجنبي في Products الذي يشير إلى Market
+            'marketId',       // المفتاح الأجنبي في Products الذي يشير إلى Market
             'id',              // المفتاح الأساسي في Category
             'id',              // المفتاح الأساسي في Market
-            'subcategory_id'   // المفتاح الأجنبي في Products الذي يشير إلى Subcategory
+            'subcategoryId'   // المفتاح الأجنبي في Products الذي يشير إلى Subcategory
         );
     }
 }

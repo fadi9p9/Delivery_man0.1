@@ -25,10 +25,10 @@ class Category extends Model
         return $this->hasManyThrough(
             Market::class,    // النموذج النهائي
             Product::class,   // النموذج الوسيط
-            'category_id',    // المفتاح الأجنبي في Subcategories الذي يشير إلى Category
+            'categoryId',    // المفتاح الأجنبي في Subcategories الذي يشير إلى Category
             'id',             // المفتاح الأساسي في Market
             'id',             // المفتاح الأساسي في Category
-            'market_id'       // المفتاح الأجنبي في Products الذي يشير إلى Market
+            'marketId'       // المفتاح الأجنبي في Products الذي يشير إلى Market
         );
     }
 }
