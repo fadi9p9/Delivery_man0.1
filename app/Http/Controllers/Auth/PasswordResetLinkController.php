@@ -70,29 +70,34 @@ class PasswordResetLinkController extends Controller
         ]);
     }
 
-    /**
-     * Send SMS to the user.
-     */
-    protected function sendSms($phoneNumber, $message)
+   // Method to send SMS
+protected function sendSms($phoneNumber, $message)
 {
-    // قم بجلب معلومات الحساب من ملف .env
-    $accountSid = env('TWILIO_SID'); // معرف الحساب
-    $authToken = env('TWILIO_AUTH_TOKEN'); // رمز التوثيق
-    $twilioNumber = env('TWILIO_PHONE_NUMBER'); // رقم Twilio المرسل
+    // Fetch Twilio credentials from the .env file
+    $accountSid = env('TWILIO_SID'); // Twilio Account SID
+    $authToken = env('TWILIO_AUTH_TOKEN'); // Twilio Auth Token
+    $twilioNumber = env('TWILIO_PHONE_NUMBER'); // Twilio phone number
 
+    // Initialize the Twilio client
     $client = new \Twilio\Rest\Client($accountSid, $authToken);
 
     try {
+        // Send the SMS
         $client->messages->create(
-            $phoneNumber= request()->phoneNumber, // رقم المستلم
+            $phoneNumber, // Recipient's phone number
             [
-                'from' => $twilioNumber, // الرقم المرسل
-                'body' => $message,     // نص الرسالة
+                'from' => $twilioNumber, // Twilio phone number
+                'body' => $message,      // Message body
             ]
         );
-    } catch (\Exception $e) {
+    } catch (\Twilio\Exceptions\RestException $e) {
+        // Handle errors from Twilio API
         throw new \Exception(__('Failed to send SMS: ') . $e->getMessage());
+    } catch (\Exception $e) {
+        // Handle general exceptions
+        throw new \Exception(__('Unexpected error while sending SMS: ') . $e->getMessage());
     }
 }
+
 
 }
