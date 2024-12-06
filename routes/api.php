@@ -99,7 +99,7 @@ Route::get('/get-updates', [PasswordResetLinkController::class, 'getChatId']);
 
 // new routes 
 
-Route::get('/categories/{id}/markets', [CategoryController::class, 'markets']);
+Route::get('/categories/{id}/markets', [CategoryController::class, 'markets'])->middleware('checkAdmin');
 // GET /api/categories/1/markets?search=laptop&page=2&per_page=5
 // GET /api/categories/1/markets
  

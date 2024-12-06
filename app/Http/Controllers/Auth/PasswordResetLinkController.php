@@ -35,9 +35,7 @@ class PasswordResetLinkController extends Controller
             $token = Password::getRepository()->create($user);
 
             // Send the email
-            \Illuminate\Support\Facades\Mail::to($user->email)->send(
-                new \App\Mail\TestMail($token)
-            );
+            \Illuminate\Support\Facades\Mail::to($user->email)->send(new \App\Mail\TestMail($token));
 
             return response()->json([
                 'message' => __('Password reset link sent successfully to email.'),

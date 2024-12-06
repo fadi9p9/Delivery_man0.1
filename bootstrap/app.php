@@ -24,8 +24,6 @@ return Application::configure(basePath: dirname(__DIR__))
             'ensureTokenIsValid' => \App\Http\Middleware\EnsureTokenIsValid::class,
             'redirectIfAuthenticated' => \App\Http\Middleware\RedirectIfAuthenticated::class,
         ]);
-
-        //
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //
