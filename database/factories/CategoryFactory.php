@@ -20,9 +20,9 @@ class CategoryFactory extends Factory
         return [
             // 'id' => $this->faker->unique()->numberBetween(1, 100),
             'name' => $this->faker->word,
-        
-        'created_at' => now(), 
-        'updated_at' => now(), 
+            'img' => $this->faker->imageUrl(),
+            'created_at' => now(),
+            'updated_at' => now(),
 
 
         ];

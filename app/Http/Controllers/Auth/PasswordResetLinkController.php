@@ -14,7 +14,8 @@ class PasswordResetLinkController extends Controller
     /**
      * Handle a password reset request (sending the token).
      */
-    public function store(Request $request, TwilioService $twilioService)
+    // public function store(Request $request, TwilioService $twilioService) 
+    public function store(Request $request)
     {
         // Validate the input (email or phone number)
         $request->validate([
@@ -59,7 +60,7 @@ class PasswordResetLinkController extends Controller
 
             try {
                 // Use TwilioService to send the verification SMS
-                $twilioService->sendVerification($user->phoneNumber);
+                // $twilioService->sendVerification($user->phoneNumber);
 
                 return response()->json([
                     'message' => __('Password reset token sent successfully via SMS.'),
