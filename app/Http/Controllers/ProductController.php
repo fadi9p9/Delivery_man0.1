@@ -178,11 +178,10 @@ class ProductController extends Controller
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function topRatedProducts(Request $request)
-    {
+    
+    public function productTopRate(Request $request){
         $limit = $request->get('limit', 12);
         $products = Product::orderBy('rate', 'desc')->take($limit)->get();
-
-        return response()->json($products);
+        return response()->json([ 'products'=>$products ]);
     }
 }

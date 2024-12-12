@@ -59,15 +59,14 @@ Route::apiResource('users', UserController::class);
 // Markets routes
 Route::apiResource('markets', MarketController::class);
 Route::post('markets/rate/{id}', [MarketController::class, 'rateMarket'])->name('markets.rate');
-// GET /api/markets/top-rated?limit=5
-Route::get('markets/top-rated', [MarketController::class, 'topRatedmarkets'])->name('markets.topRated');
+// GET /api/market/toprate?limit=5
+route::get('/market/toprate', [MarketController::class, 'MarketTopRate']);
 
 // Products routes
 Route::apiResource('products', ProductController::class);
 Route::post('products/rate/{id}', [ProductController::class, 'rateProduct'])->name('products.rate');
-// GET /api/products/top-rated?limit=5
-Route::get('products/top-rated', [ProductController::class, 'topRatedProducts'])->name('products.topRated');
-
+// GET /api/product/toprate?limit=5
+route::get('product/toprate', [ProductController::class, 'productTopRate']);
 // Images routes
 
 Route::apiResource('images', productImageController::class);

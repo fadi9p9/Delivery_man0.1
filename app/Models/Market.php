@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class Market extends Model
 {
     use HasFactory;
-
+    protected $table = 'markets';
     protected $fillable = [
         'userId',
         'title',

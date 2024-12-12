@@ -56,37 +56,33 @@ class MarketController extends Controller
     }
 
     public function rateMarket(Request $request, $id)
-    {
-        $market = Market::findOrFail($id);
+{
+    $market = Market::findOrFail($id);
 
-        // Validate the rating input
-        $validatedData = $request->validate([
-            'rating' => 'required|numeric|min:1|max:5',
-        ]);
+    $validatedData = $request->validate([
+        'rating' => 'required|numeric|min:1|max:5',
+    ]);
 
-        // Update the market's rating
-        $market->rating = ($market->rate * $market->rating_count + $validatedData['rating']) / ($market->rating_count + 1);
-        $market->rating_count += 1;
-        $market->save();
+    if ($market->rating_count == 0) {
+        // مشان اول تصنيف
+        $market->rating = $validatedData['rating'];
+    } else {
+  $market->rating = round(($market->rating * $market->rating_count + $validatedData['rating']) / ($market->rating_count + 1), 1);
 
-        return response()->json([
-            'message' => 'Market rated successfully',
-            'market' => $market,
-        ]);
     }
+    $market->rating_count += 1;
+    $market->save();
 
-    /**
-     * Return top-rated markets.
-     *
-     * @param Request $request
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function topRatedMarkets(Request $request)
-    {
+    return response()->json([
+        'message' => 'Market rated successfully',
+        'market' => $market,
+    ]);
+}
+
+    public function MarketTopRate(Request $request) {
         $limit = $request->get('limit', 12); 
         $markets = Market::orderBy('rating', 'desc')->take($limit)->get();
-
-        return response()->json($markets);
+        return response()->json([ 'market'=>$markets ]);
     }
 
     // new function 
@@ -101,22 +97,7 @@ class MarketController extends Controller
     {
         $market = Market::with('products.subcategory.category')->findOrFail($id);
 
-        // استخراج التصنيفات من المنتجات
-        // $categories = $market->products->flatMap(function ($product) {
-        //     return $product->subcategory->pluck('categoryId');
-        // })->unique('id')->values();
-        // return response()->json($categories);
-
-        // ا��تخرا�� التصنيفات من المنتجات التي تمتلكها المتا��ر بمعرف المتجر
-        // $categories = Category::whereHas('subcategories.products', function ($query) use ($id) {
-        //     $query->where('market_id', $id);
-        // })->get();
-
-        // ا��تخرا�� التصنيفات من المنتجات التي تمتلكها المتا��ر با��تخدام ��ريقة eager loading
-        // $categories = Category::with(['subcategories.products' => function ($query) use ($id) {
-        //     $query->where('market_id', $id);
-        // }])->get();
-
+      
         $categories = Category::whereHas('subcategories.products', function ($query) use ($id) {
             $query->where('marketId', $id);
         })->get();
