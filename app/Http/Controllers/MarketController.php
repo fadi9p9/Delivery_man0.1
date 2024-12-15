@@ -30,7 +30,8 @@ class MarketController extends Controller
 
     public function show($id)
     {
-        $market = Market::findOrFail($id);
+        $market = Market::with('products')->findOrFail($id);
+        
         return response()->json($market);
     }
 
