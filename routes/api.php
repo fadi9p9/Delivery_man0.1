@@ -81,6 +81,8 @@ Route::apiResource('cart-items', CartItemController::class);
 
 // Orders routes
 Route::apiResource('orders', OrderController::class);
+// Order status routes !!!!!!!!!!!!!!!!!!!!!!!!!
+Route::put('/orders/{orderId}/status', [OrderController::class, 'updateStatus']);
 
 // Categories routes
 Route::apiResource('categories', CategoryController::class);
@@ -105,6 +107,3 @@ Route::get('/categories/{id}/markets', [CategoryController::class, 'markets'])->
 Route::get('/markets/{id}/categories', [MarketController::class, 'categories']);
 // GET /api/markets/1/categories?search=electronics&page=1&per_page=10
 // GET /api/markets/1/categories
-
-Route::post('cart/decrement', [CartController::class, 'decrementQuantitie']);
-Route::post('/cart/cancelOrder', [CartController::class, 'cancelOrder']);

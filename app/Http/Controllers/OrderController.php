@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\CartItem;
 use App\Models\Order;
+use App\Models\Product;
 use Illuminate\Http\Request;
 
 class OrderController extends Controller
@@ -49,5 +51,44 @@ class OrderController extends Controller
         $order = Order::findOrFail($id);
         $order->delete();
         return response()->json(['message' => 'Order deleted successfully']);
+    }
+
+    public function updateStatus(Request $request, $orderId)
+    {
+        $validated = $request->validate([
+            'status' => 'required|in:Active,Canceled,Pending,Done',
+        ]);
+
+        $order = Order::findOrFail($orderId);
+        $previousStatus = $order->status; 
+        $order->status = $validated['status'];
+        $order->save();
+        $cartItems = CartItem::where('cartId', $order->cartId)->get();
+
+        if ($order->status === "Active" && $previousStatus !== "Active") {
+            foreach ($cartItems as $item) {
+                $product = Product::findOrFail($item->productId);
+                if ($product->totalQuantity < $item->quantity) {
+                    return response()->json([
+                        'message' => 'Insufficient stock for product: ' . $product->title,
+                    ], 400); 
+                }
+                $product->totalQuantity -= $item->quantity; 
+                $product->save();
+            }
+        }
+
+        if ($order->status === "Canceled" && $previousStatus === "Active") {
+            foreach ($cartItems as $item) {
+                $product = Product::findOrFail($item->productId);
+                $product->totalQuantity += $item->quantity; 
+                $product->save();
+            }
+        }
+
+        return response()->json([
+            'message' => 'Order status updated successfully!',
+            'order' => $order,
+        ]);
     }
 }
