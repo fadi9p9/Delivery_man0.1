@@ -16,7 +16,7 @@ class CheckAdmin
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (Auth::user() && Auth::user()->role !== 'Admin') {
+        if (!Auth::user() || Auth::user()->role !== 'Admin') {
             return new Response('Forbidden', 403);
         }
         return $next($request);

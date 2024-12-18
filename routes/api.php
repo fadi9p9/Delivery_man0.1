@@ -91,7 +91,7 @@ Route::apiResource('categories', CategoryController::class);
 Route::apiResource('subcategories', SubcategoryController::class);
 
 // Favorites routes
-Route::get('users/{userId}/favorites', [FavoriteController::class, 'userFavorite']);
+Route::get('users/{userId}/favorites', [FavoriteController::class, 'userFavorite'])->middleware(CheckAdmin::class);
 Route::apiResource('favorites', FavoriteController::class);
 
 Route::post('/send-verification-code', [TelegramController::class, 'sendVerificationCode']);

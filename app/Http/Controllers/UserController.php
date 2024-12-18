@@ -30,17 +30,25 @@ class UserController extends Controller
             'lastName' => 'required|string|max:255',
             'role' => 'required|in:Admin,Customer,Vendor,DeliveryMan',
             'location' => 'nullable|string|max:255',
-            'img' => 'nullable|string',
-            
+            'img' => 'nullable|string|max:2048',
         ]);
+
+        if ($request->hasFile('img')) {
+            $path = $request->file('img')->store('uploads/images', 'public');
+            $validated['img'] = $path; 
+        }
 
         if (isset($validated['password'])) {
             $validated['password'] = bcrypt($validated['password']);
         }
 
         $user->update($validated);
-        return response()->json(['message' => 'User updated successfully', 'user' => $user]);
+        return response()->json([
+            'message' => 'User updated successfully',
+            'user' => $user,
+        ]);
     }
+
 
     public function destroy($id)
     {
