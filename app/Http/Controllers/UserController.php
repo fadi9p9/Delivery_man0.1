@@ -30,7 +30,7 @@ class UserController extends Controller
             'lastName' => 'required|string|max:255',
             'role' => 'required|in:Admin,Customer,Vendor,DeliveryMan',
             'location' => 'nullable|string|max:255',
-            'img' => 'nullable|string|max:255',
+            'img' => 'nullable|string',
             
         ]);
 
