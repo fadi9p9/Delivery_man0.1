@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('orders', function (Blueprint $table) {
             $table->id('orderId');
-            $table->enum('status', ['Active', 'Canceled', 'Pending','Done']);
+            $table->enum('status', ['Active', 'Canceled', 'Pending','Done'])->default('Pending');
             $table->foreignId('cartId')->constrained('carts')->onDelete('cascade');
             $table->string('orderLocation', 255)->nullable();
             $table->foreignId('customerId')->constrained('users')->onDelete('cascade');
