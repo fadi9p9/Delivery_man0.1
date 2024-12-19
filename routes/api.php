@@ -55,9 +55,11 @@ Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
 
 // Users routes
 Route::apiResource('users', UserController::class);
+Route::post('users/update/{id}', [UserController::class, "updateuser"]);
 
 // Markets routes
 Route::apiResource('markets', MarketController::class);
+Route::post('markets/update/{id}', [MarketController::class,"updateMarket"]);
 Route::post('markets/rate/{id}', [MarketController::class, 'rateMarket'])->name('markets.rate');
 // GET /api/market/toprate?limit=5
 route::get('/market/toprate', [MarketController::class, 'MarketTopRate']);
@@ -70,7 +72,6 @@ route::get('product/toprate', [ProductController::class, 'productTopRate']);
 // Images routes
 
 Route::apiResource('images', productImageController::class);
-
 // Carts routes
 Route::apiResource('carts', CartController::class);
 Route::post('/carts/{cart}/add-item', [CartController::class, 'addItem'])->name('carts.addItem');
@@ -86,6 +87,7 @@ Route::put('/orders/{orderId}/status', [OrderController::class, 'updateStatus'])
 
 // Categories routes
 Route::apiResource('categories', CategoryController::class);
+Route::post('categories/update/{id}', [CategoryController::class, 'updateCategory']);
 
 // Subcategories routes
 Route::apiResource('subcategories', SubcategoryController::class);

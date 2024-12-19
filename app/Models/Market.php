@@ -12,6 +12,7 @@ class Market extends Model
     protected $fillable = [
         'userId',
         'title',
+        'description',
         'location',
         'img',
         'rating',
