@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Http\Request;
+use Symfony\Component\Mime\Part\Multipart\FormDataPart;
 
 class UserController extends Controller
 {
@@ -19,7 +20,7 @@ class UserController extends Controller
         return response()->json($user);
     }
 
-    public function update(Request $request, $id)
+    public function update(Request $request, $id,FormDataPart $formData)
     {
         $user = User::findOrFail($id);
         $validated = $request->validate([
@@ -30,18 +31,17 @@ class UserController extends Controller
             'lastName' => 'required|string|max:255',
             'role' => 'required|in:Admin,Customer,Vendor,DeliveryMan',
             'location' => 'nullable|string|max:255',
-            'img' => 'nullable|string|max:2048',
+            'img' => 'nullable|image|max:2048',
         ]);
 
         if ($request->hasFile('img')) {
-            $path = $request->file('img')->store('uploads/images', 'public');
+            $path = $request->file('img')->store('upload');
             $validated['img'] = $path; 
         }
 
         if (isset($validated['password'])) {
             $validated['password'] = bcrypt($validated['password']);
         }
-
         $user->update($validated);
         return response()->json([
             'message' => 'User updated successfully',
