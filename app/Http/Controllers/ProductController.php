@@ -181,10 +181,22 @@ class ProductController extends Controller
      * Get top-rated products.
      */
     public function productTopRate(Request $request)
-    {
-        $limit = $request->get('limit', 12);
-        $products = Product::with('images')->orderBy('rate', 'desc')->take($limit)->get();
+{
+    $limit = $request->get('limit', 12);
+    $products = Product::with('images')->orderBy('rate', 'desc')->take($limit)->get();
 
-        return response()->json(['products' => $products]);
-    }
+    // تعديل الـ URL للصور
+    $products->each(function ($product) {
+        if ($product->images) {
+            $product->images = $product->images->map(function ($image) {
+                $image->url = url('storage/' . $image->url); // تعديل الـ URL بإضافة storage/
+                return $image;
+            });
+        }
+    });
+
+    return response()->json(['products' => $products]);
+}
+
+    
 }
