@@ -185,11 +185,12 @@ class ProductController extends Controller
     $limit = $request->get('limit', 12);
     $products = Product::with('images')->orderBy('rate', 'desc')->take($limit)->get();
 
-    // تعديل الـ URL للصور
+   
     $products->each(function ($product) {
         if ($product->images) {
             $product->images = $product->images->map(function ($image) {
-                $image->url = url('storage/' . $image->url); // تعديل الـ URL بإضافة storage/
+                $image->url = url('storage/' . $image->url); 
+                
                 return $image;
             });
         }
