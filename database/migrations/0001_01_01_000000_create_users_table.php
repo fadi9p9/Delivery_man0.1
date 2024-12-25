@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('email', 100)->unique()->nullable();
             $table->string('phoneNumber', 15)->unique()->nullable();
             $table->string('password', 255);
-            $table->text('img')->nullable(); // user avatar image as a default
+            $table->text('img')->nullable()->default('users/default_user.png'); // user avatar image as a default
             $table->enum('role', ['Admin', 'Customer', 'Vendor','DeliveryMan'])->default('Customer');
             $table->string('location', 255)->nullable();
             $table->rememberToken();

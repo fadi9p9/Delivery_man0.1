@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Category;
 use App\Models\Market;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+use Symfony\Component\Mime\Part\Multipart\FormDataPart;
 
 class MarketController extends Controller
 {
@@ -17,44 +19,97 @@ class MarketController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'userId'=>'required|exists:users,id',
+            'userId' => 'required|exists:users,id',
             'title' => 'required|string|max:255',
             'location' => 'nullable|string|max:255',
             'description' => 'nullable|string',
-            
+            'img' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // التأكد من نوع الصورة
         ]);
-
+    
+        if ($request->hasFile('img')) {
+            // حفظ الصورة في مجلد التخزين
+            $path = $request->file('img')->store('markets', 'public');
+            $validated['img'] = $path; // حفظ المسار فقط في قاعدة البيانات
+        }
+    
         $market = Market::create($validated);
-        return response()->json(['message' => 'Market created successfully', 'market' => $market], 201);
+    
+        return response()->json([
+            'message' => 'Market created successfully',
+            'market' => $market,
+        ], 201);
     }
-
-    public function show($id)
+    
+    public function updateMarket(Request $request, $id)
     {
-        $market = Market::with('products')->findOrFail($id);
-        
-        return response()->json($market);
-    }
-
-    public function update(Request $request, $id)
-    {
+        // العثور على السجل المطلوب
         $market = Market::findOrFail($id);
+        $img = $market->img;
+    
+        // التحقق من البيانات
         $validated = $request->validate([
-            // 'userId'=>'required|exists:users,id',
             'title' => 'required|string|max:255',
             'location' => 'nullable|string|max:255',
             'description' => 'nullable|string',
+            'img' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
-
+    
+        // التعامل مع الصورة إذا كانت موجودة
+        if ($request->hasFile('img')) {
+            // حذف الصورة القديمة إذا كانت موجودة
+            if ($img) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($img);
+            }
+    
+            // تخزين الصورة الجديدة
+            $path = $request->file('img')->store('markets', 'public');
+            $validated['img'] = $path;
+        }
+    
+        // تحديث السجل
         $market->update($validated);
-        return response()->json(['message' => 'Market updated successfully', 'market' => $market]);
+    
+        // إرجاع استجابة JSON
+        return response()->json([
+            'message' => 'Market updated successfully',
+            'market' => [
+                'id' => $market->id,
+                'title' => $market->title,
+                'location' => $market->location,
+                'description' => $market->description,
+                'img' => $market->img ? asset('storage/' . $market->img) : null,
+            ],
+        ]);
+    }
+    
+    
+
+    
+public function show($id)
+{
+    $market = Market::with('products')->findOrFail($id);
+
+    // تعديل رابط الصورة
+    $market->img = $market->img ? asset('storage/' . $market->img) : null;
+
+    return response()->json($market);
+}
+
+
+public function destroy($id)
+{
+    $market = Market::findOrFail($id);
+
+    // حذف الصورة من التخزين إذا وُجدت
+    if ($market->img) {
+        \Illuminate\Support\Facades\Storage::disk('public')->delete($market->img);
     }
 
-    public function destroy($id)
-    {
-        $market = Market::findOrFail($id);
-        $market->delete();
-        return response()->json(['message' => 'Market deleted successfully']);
-    }
+    $market->delete();
+
+    return response()->json(['message' => 'Market deleted successfully']);
+}
+
 
     public function rateMarket(Request $request, $id)
 {

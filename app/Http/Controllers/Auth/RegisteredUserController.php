@@ -41,7 +41,6 @@ class RegisteredUserController extends Controller
             'lastName' => $request->lastName,
             'role' => 'Customer',
             'location' => null,
-            'img' => null,
 
         ]);
 
