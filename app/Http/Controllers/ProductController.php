@@ -12,18 +12,30 @@ class ProductController extends Controller
      * Display a listing of the products with pagination and optional search.
      */
     public function index(Request $request)
-    {
-        $query = Product::query();
+{
+    $query = Product::query();
 
-        if ($request->has('search') && $request->search != '') {
-            $query->where('title', 'like', '%' . $request->search . '%')
-                  ->orWhere('description', 'like', '%' . $request->search . '%');
-        }
-
-        $products = $query->with(['images'])->paginate($request->get('per_page', 16));
-
-        return response()->json($products);
+    // البحث في العنوان والوصف
+    if ($request->has('search') && $request->search != '') {
+        $query->where('title', 'like', '%' . $request->search . '%')
+              ->orWhere('description', 'like', '%' . $request->search . '%');
     }
+
+    // جلب المنتجات مع الصور
+    $products = $query->with(['images'])->paginate($request->get('per_page', 16));
+
+    // تعديل مسار الصور في الـ response
+    $products->getCollection()->transform(function ($product) {
+        $product->images = $product->images->map(function ($image) {
+            $image->url = asset('storage/' . $image->url); // إضافة storage/ للمسار
+            return $image;
+        });
+        return $product;
+    });
+
+    return response()->json($products);
+}
+
 
     /**
      * Store a newly created product in storage.
@@ -64,15 +76,24 @@ class ProductController extends Controller
     /**
      * Display the specified product.
      */
-    public function show($id)
-    {
-        $product = Product::with('images')->findOrFail($id);
+   public function show($id)
+{
+    $product = Product::with('images')->findOrFail($id);
 
-        return response()->json([
-            'product' => $product,
-            // 'images' => $product->images,
-        ]);
-    }
+    // تعديل الصور لتضمين المسار الكامل
+    $images = $product->images->map(function ($image) {
+        return [
+            'id' => $image->id,
+            'url' => asset('storage/' . $image->url), // تضمين storage/
+        ];
+    });
+
+    return response()->json([
+        'product' => $product,
+        'images' => $images,
+    ]);
+}
+
 
     /**
      * Update the specified product in storage.
@@ -160,10 +181,22 @@ class ProductController extends Controller
      * Get top-rated products.
      */
     public function productTopRate(Request $request)
-    {
-        $limit = $request->get('limit', 12);
-        $products = Product::with('images')->orderBy('rate', 'desc')->take($limit)->get();
+{
+    $limit = $request->get('limit', 12);
+    $products = Product::with('images')->orderBy('rate', 'desc')->take($limit)->get();
 
-        return response()->json(['products' => $products]);
-    }
+    // تعديل الـ URL للصور
+    $products->each(function ($product) {
+        if ($product->images) {
+            $product->images = $product->images->map(function ($image) {
+                $image->url = url('storage/' . $image->url); // تعديل الـ URL بإضافة storage/
+                return $image;
+            });
+        }
+    });
+
+    return response()->json(['products' => $products]);
+}
+
+    
 }

@@ -11,10 +11,20 @@ use Symfony\Component\Mime\Part\Multipart\FormDataPart;
 class MarketController extends Controller
 {
     public function index(Request $request)
-    {
-        $markets = Market::paginate($request->get('per_page', 16));
-        return response()->json($markets);
-    }
+{
+    $markets = Market::paginate($request->get('per_page', 16));
+
+    // تعديل البيانات وإضافة مسار storage/ للصور
+    $markets->getCollection()->transform(function ($market) {
+        if (isset($market->img)) { // تحقق من وجود الصورة
+            $market->img = asset('storage/' . $market->img); // تعديل مسار الصورة
+        }
+        return $market;
+    });
+
+    return response()->json($markets);
+}
+
 
     public function store(Request $request)
     {
