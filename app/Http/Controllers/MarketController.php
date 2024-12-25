@@ -11,20 +11,23 @@ use Symfony\Component\Mime\Part\Multipart\FormDataPart;
 class MarketController extends Controller
 {
     public function index(Request $request)
-{
-    $markets = Market::paginate($request->get('per_page', 16));
+    {
+        $markets = Market::paginate($request->get('per_page', 16));
 
-    // تعديل البيانات وإضافة مسار storage/ للصور
-    $markets->getCollection()->transform(function ($market) {
-        if (isset($market->img)) { // تحقق من وجود الصورة
-            $market->img = asset('storage/' . $market->img); // تعديل مسار الصورة
-        }
-        return $market;
-    });
+        $markets->getCollection()->transform(function ($market) {
+            if (isset($market->img)) {
+                if (filter_var($market->img, FILTER_VALIDATE_URL)) {
+                    $market->img = $market->img; 
+                } else {
+                    $market->img = asset('storage/' . $market->img); 
+                }
+            }
+            return $market;
+        });
 
-    return response()->json($markets);
-}
 
+        return response()->json($markets);
+    }
 
     public function store(Request $request)
     {
@@ -33,53 +36,45 @@ class MarketController extends Controller
             'title' => 'required|string|max:255',
             'location' => 'nullable|string|max:255',
             'description' => 'nullable|string',
-            'img' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // التأكد من نوع الصورة
+            'img' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
-    
+
         if ($request->hasFile('img')) {
-            // حفظ الصورة في مجلد التخزين
             $path = $request->file('img')->store('markets', 'public');
-            $validated['img'] = $path; // حفظ المسار فقط في قاعدة البيانات
+            $validated['img'] = $path;
         }
-    
+
         $market = Market::create($validated);
-    
+
         return response()->json([
             'message' => 'Market created successfully',
             'market' => $market,
         ], 201);
     }
-    
+
     public function updateMarket(Request $request, $id)
     {
-        // العثور على السجل المطلوب
         $market = Market::findOrFail($id);
         $img = $market->img;
-    
-        // التحقق من البيانات
+
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'location' => 'nullable|string|max:255',
             'description' => 'nullable|string',
             'img' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
-    
-        // التعامل مع الصورة إذا كانت موجودة
+
         if ($request->hasFile('img')) {
-            // حذف الصورة القديمة إذا كانت موجودة
             if ($img) {
                 \Illuminate\Support\Facades\Storage::disk('public')->delete($img);
             }
-    
-            // تخزين الصورة الجديدة
+
             $path = $request->file('img')->store('markets', 'public');
             $validated['img'] = $path;
         }
-    
-        // تحديث السجل
+
         $market->update($validated);
-    
-        // إرجاع استجابة JSON
+
         return response()->json([
             'message' => 'Market updated successfully',
             'market' => [
@@ -91,64 +86,66 @@ class MarketController extends Controller
             ],
         ]);
     }
-    
-    
 
-    
-public function show($id)
-{
-    $market = Market::with('products')->findOrFail($id);
+    public function show($id)
+    {
+        $market = Market::with('products')->findOrFail($id);
 
-    // تعديل رابط الصورة
-    $market->img = $market->img ? asset('storage/' . $market->img) : null;
+        if ($market->img) {
+            if (filter_var($market->img, FILTER_VALIDATE_URL)) {
+                $market->img = $market->img; 
+            } else {
+                $market->img = asset('storage/' . $market->img); 
+            }
+        } else {
+            $market->img = null; 
+        }
 
-    return response()->json($market);
-}
-
-
-public function destroy($id)
-{
-    $market = Market::findOrFail($id);
-
-    // حذف الصورة من التخزين إذا وُجدت
-    if ($market->img) {
-        \Illuminate\Support\Facades\Storage::disk('public')->delete($market->img);
+        return response()->json($market);
     }
 
-    $market->delete();
 
-    return response()->json(['message' => 'Market deleted successfully']);
-}
+    public function destroy($id)
+    {
+        $market = Market::findOrFail($id);
+
+        if ($market->img) {
+            \Illuminate\Support\Facades\Storage::disk('public')->delete($market->img);
+        }
+
+        $market->delete();
+
+        return response()->json(['message' => 'Market deleted successfully']);
+    }
 
 
     public function rateMarket(Request $request, $id)
-{
-    $market = Market::findOrFail($id);
+    {
+        $market = Market::findOrFail($id);
 
-    $validatedData = $request->validate([
-        'rating' => 'required|numeric|min:1|max:5',
-    ]);
+        $validatedData = $request->validate([
+            'rating' => 'required|numeric|min:1|max:5',
+        ]);
 
-    if ($market->rating_count == 0) {
-        // مشان اول تصنيف
-        $market->rating = $validatedData['rating'];
-    } else {
-  $market->rating = round(($market->rating * $market->rating_count + $validatedData['rating']) / ($market->rating_count + 1), 1);
+        if ($market->rating_count == 0) {
+            $market->rating = $validatedData['rating'];
+        } else {
+            $market->rating = round(($market->rating * $market->rating_count + $validatedData['rating']) / ($market->rating_count + 1), 1);
+        }
+        $market->rating_count += 1;
+        $market->save();
 
+        return response()->json([
+            'message' => 'Market rated successfully',
+            'market' => $market,
+        ]);
     }
-    $market->rating_count += 1;
-    $market->save();
 
-    return response()->json([
-        'message' => 'Market rated successfully',
-        'market' => $market,
-    ]);
-}
-
-    public function MarketTopRate(Request $request) {
-        $limit = $request->get('limit', 12); 
+    public function MarketTopRate(Request $request)
+    {
+        $limit = $request->get('limit', 12);
         $markets = Market::orderBy('rating', 'desc')->take($limit)->get();
-        return response()->json([ 'market'=>$markets ]);
+        return response()->json(['market' => $markets]);
     }
 
     // new function 
@@ -163,7 +160,7 @@ public function destroy($id)
     {
         $market = Market::with('products.subcategory.category')->findOrFail($id);
 
-      
+
         $categories = Category::whereHas('subcategories.products', function ($query) use ($id) {
             $query->where('marketId', $id);
         })->get();
@@ -176,7 +173,7 @@ public function destroy($id)
         }
 
         // Pagination
-        $perPage = $request->get('per_page', 16);  
+        $perPage = $request->get('per_page', 16);
         $categoriesPaginated = $categories->forPage($request->get('page', 1), $perPage);
 
         return response()->json([
