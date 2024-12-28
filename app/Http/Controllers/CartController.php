@@ -26,7 +26,7 @@ class CartController extends Controller
         return response()->json(['message' => 'Cart created successfully', 'cart' => $cart], 201);
     }
     public function show($id){
-        $cart = Cart::with('cartItems')->findOrFail($id);
+        $cart = Cart::with('cartItems.product')->findOrFail($id);
         return response()->json($cart);
     }
 
