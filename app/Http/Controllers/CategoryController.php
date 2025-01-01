@@ -113,4 +113,12 @@ class CategoryController extends Controller
             'total' => $markets->count(),
         ]);
     }
+
+    public function products($id)
+    {
+        $category = Category::with('subcategories.products')->findOrFail($id);
+        $category->img = $category->img ? asset('storage/' . $category->img) : null;
+
+        return response()->json($category);
+    }
 }

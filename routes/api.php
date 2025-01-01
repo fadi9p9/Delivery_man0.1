@@ -87,6 +87,7 @@ Route::put('/orders/{orderId}/status', [OrderController::class, 'updateStatus'])
 
 // Categories routes
 Route::apiResource('categories', CategoryController::class);
+Route::get('categories/{id}/products', [CategoryController::class, 'products']);
 Route::post('categories/update/{id}', [CategoryController::class, 'updateCategory']);
 
 // Subcategories routes
