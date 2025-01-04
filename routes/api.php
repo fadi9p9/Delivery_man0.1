@@ -54,6 +54,7 @@ Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
 });
 
 // Users routes
+Route::get('/users/vendors', [UserController::class, "getVendors"]);
 Route::apiResource('users', UserController::class);
 Route::post('users/update/{id}', [UserController::class, "updateuser"]);
 

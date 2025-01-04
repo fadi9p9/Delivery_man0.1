@@ -5,13 +5,24 @@ namespace App\Http\Controllers;
 use App\Models\CartItem;
 use App\Models\Order;
 use App\Models\Product;
+use App\Models\User;
 use Illuminate\Http\Request;
 
 class OrderController extends Controller
 {
     public function index(Request $request)
     {
-        $orders = Order::with(['cart', 'customer', 'delivery'])->paginate($request->get('per_page', 16));
+        $search = $request->get('search');
+        $query = Order::with(['cart', 'customer', 'delivery']);
+
+        if ($search) {
+            $query->where('orderLocation', 'like', "%{$search}%")
+                  ->orWhereHas('customer', function ($q) use ($search) {
+                      $q->where('name', 'like', "%{$search}%");
+                  });
+        }
+
+        $orders = $query->paginate($request->get('per_page', 16));
         return response()->json($orders);
     }
 
@@ -25,6 +36,21 @@ class OrderController extends Controller
         ]);
 
         $order = Order::create($validated);
+
+        if ($order->status === "Active") {
+            $cartItems = CartItem::where('cartId', $order->cartId)->get();
+            foreach ($cartItems as $item) {
+                $product = Product::findOrFail($item->productId);
+                if ($product->totalQuantity < $item->quantity) {
+                    return response()->json([
+                        'message' => 'Insufficient stock for product: ' . $product->title,
+                    ], 400); 
+                }
+                $product->totalQuantity -= $item->quantity; 
+                $product->save();
+            }
+        }
+
         return response()->json(['message' => 'Order created successfully', 'order' => $order], 201);
     }
 
@@ -60,9 +86,10 @@ class OrderController extends Controller
         ]);
 
         $order = Order::findOrFail($orderId);
-        $previousStatus = $order->status; 
+        $previousStatus = $order->status;
         $order->status = $validated['status'];
         $order->save();
+
         $cartItems = CartItem::where('cartId', $order->cartId)->get();
 
         if ($order->status === "Active" && $previousStatus !== "Active") {

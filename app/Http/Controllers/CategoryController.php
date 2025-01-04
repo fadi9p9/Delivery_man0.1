@@ -10,10 +10,20 @@ use Illuminate\Support\Facades\Storage;
 class CategoryController extends Controller
 {
     public function index(Request $request)
-    {
-        $categories = Category::paginate($request->get('per_page', 16));
-        return response()->json($categories);
+{
+    $search = $request->get('search'); 
+
+    $query = Category::query();
+
+    if ($search) {
+        $query->where('name', 'like', "%{$search}%");
     }
+
+    $categories = $query->paginate($request->get('per_page', 16));
+
+    return response()->json($categories);
+}
+
 
     public function store(Request $request)
     {
