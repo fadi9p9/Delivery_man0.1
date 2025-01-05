@@ -10,31 +10,31 @@ use Illuminate\Support\Facades\Storage;
 class UserController extends Controller
 {
     public function index(Request $request)
-{
-    $search = $request->get('search');
+    {
+        $search = $request->get('search');
 
-    $query = User::query();
+        $query = User::query();
 
-    if ($search) {
-        $query->where(function ($q) use ($search) {
-            $q->where('name', 'like', "%{$search}%")
-              ->orWhere('lastName', 'like', "%{$search}%")
-              ->orWhere('email', 'like', "%{$search}%")
-              ->orWhere('phoneNumber', 'like', "%{$search}%");
-        });
-    }
-
-    $users = $query->paginate($request->get('per_page', 16));
-
-    $users->getCollection()->transform(function ($user) {
-        if ($user->img) {
-            $user->img = asset('storage/' . $user->img);
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                    ->orWhere('lastName', 'like', "%{$search}%")
+                    ->orWhere('email', 'like', "%{$search}%")
+                    ->orWhere('phoneNumber', 'like', "%{$search}%");
+            });
         }
-        return $user;
-    });
 
-    return response()->json($users);
-}
+        $users = $query->paginate($request->get('per_page', 16));
+
+        $users->getCollection()->transform(function ($user) {
+            if ($user->img) {
+                $user->img = asset('storage/' . $user->img);
+            }
+            return $user;
+        });
+
+        return response()->json($users);
+    }
 
 
     public function show($id)
@@ -42,7 +42,7 @@ class UserController extends Controller
         $user = User::findOrFail($id);
 
         if ($user->img) {
-            $user->img = asset('storage/' . $user->img); 
+            $user->img = asset('storage/' . $user->img);
         }
 
         return response()->json($user);
@@ -66,7 +66,7 @@ class UserController extends Controller
             $path = $request->file('img')->store('users', 'public');
             $validated['img'] = $path;
         } else {
-            $validated['img'] = 'users/default_user.png'; 
+            $validated['img'] = 'users/default_user.png';
         }
 
         $validated['password'] = Hash::make($validated['password']);
@@ -80,13 +80,13 @@ class UserController extends Controller
     }
 
     public function getVendors(Request $request)
-{
-    $vendors = User::where('role', 'Vendor') 
-        ->select('id', 'name', 'email') 
-        ->paginate($request->get('per_page', 16));
+    {
+        $vendors = User::where('role', 'Vendor')
+            ->select('id', 'name', 'email')
+            ->paginate($request->get('per_page', 16));
 
-    return response()->json($vendors);
-}
+        return response()->json($vendors);
+    }
 
 
     public function update(Request $request, $id)
@@ -120,7 +120,7 @@ class UserController extends Controller
         $user->update($validated);
 
         if ($user->img) {
-            $user->img = asset('storage/' . $user->img); 
+            $user->img = asset('storage/' . $user->img);
         }
 
         return response()->json([

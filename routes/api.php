@@ -64,6 +64,7 @@ Route::post('markets/update/{id}', [MarketController::class,"updateMarket"]);
 Route::post('markets/rate/{id}', [MarketController::class, 'rateMarket'])->name('markets.rate');
 // GET /api/market/toprate?limit=5
 route::get('/market/toprate', [MarketController::class, 'MarketTopRate']);
+Route::get('/market/titles', [MarketController::class, 'marketsTitles']);
 
 // Products routes
 Route::apiResource('products', ProductController::class);
@@ -90,9 +91,11 @@ Route::put('/orders/{orderId}/status', [OrderController::class, 'updateStatus'])
 Route::apiResource('categories', CategoryController::class);
 Route::get('categories/{id}/products', [CategoryController::class, 'products']);
 Route::post('categories/update/{id}', [CategoryController::class, 'updateCategory']);
+route::get('/category/titles', [CategoryController::class, 'categoriesTitles']);
 
 // Subcategories routes
 Route::apiResource('subcategories', SubcategoryController::class);
+route::get('/subcategory/titles', [SubcategoryController::class, 'subcategoriesTitles']);
 
 // Favorites routes
 Route::get('users/{userId}/favorites', [FavoriteController::class, 'userFavorite'])->middleware(CheckAdmin::class);

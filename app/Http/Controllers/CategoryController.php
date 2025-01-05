@@ -10,19 +10,19 @@ use Illuminate\Support\Facades\Storage;
 class CategoryController extends Controller
 {
     public function index(Request $request)
-{
-    $search = $request->get('search'); 
+    {
+        $search = $request->get('search');
 
-    $query = Category::query();
+        $query = Category::query();
 
-    if ($search) {
-        $query->where('name', 'like', "%{$search}%");
+        if ($search) {
+            $query->where('name', 'like', "%{$search}%");
+        }
+
+        $categories = $query->paginate($request->get('per_page', 16));
+
+        return response()->json($categories);
     }
-
-    $categories = $query->paginate($request->get('per_page', 16));
-
-    return response()->json($categories);
-}
 
 
     public function store(Request $request)
@@ -130,5 +130,12 @@ class CategoryController extends Controller
         $category->img = $category->img ? asset('storage/' . $category->img) : null;
 
         return response()->json($category);
+    }
+
+    public function categoriesTitles(Request $request)
+    {
+        $categories = Category::select('id', 'name')->get();
+
+        return response()->json($categories);
     }
 }

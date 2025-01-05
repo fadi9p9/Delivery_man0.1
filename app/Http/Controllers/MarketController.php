@@ -183,4 +183,11 @@ class MarketController extends Controller
             'total' => $categories->count(),
         ]);
     }
+
+    public function marketsTitles(Request $request)
+    {
+        $markets = Market::select('id', 'title')->get();
+
+        return response()->json($markets);
+    }
 }

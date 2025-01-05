@@ -48,4 +48,11 @@ class SubCategoryController extends Controller
         $subcategory->delete();
         return response()->json(['message' => 'SubCategory deleted successfully']);
     }
+
+    public function subcategoriesTitles(Request $request)
+    {
+        $subcategories = SubCategory::select('id', 'name')->get();
+
+        return response()->json($subcategories);
+    }
 }
