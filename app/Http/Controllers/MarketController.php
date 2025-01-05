@@ -10,24 +10,35 @@ use Symfony\Component\Mime\Part\Multipart\FormDataPart;
 
 class MarketController extends Controller
 {
-    public function index(Request $request)
-    {
-        $markets = Market::paginate($request->get('per_page', 16));
+    public function index(Request $request) 
+{
+    $search = $request->get('search', null);
 
-        $markets->getCollection()->transform(function ($market) {
-            if (isset($market->img)) {
-                if (filter_var($market->img, FILTER_VALIDATE_URL)) {
-                    $market->img = $market->img; 
-                } else {
-                    $market->img = asset('storage/' . $market->img); 
-                }
-            }
-            return $market;
+    $query = Market::query();
+
+    if ($search) {
+        $query->where(function ($q) use ($search) {
+            $q->where('title', 'like', "%{$search}%")
+              ->orWhere('description', 'like', "%{$search}%");
         });
-
-
-        return response()->json($markets);
     }
+
+    $markets = $query->paginate($request->get('per_page', 16));
+
+    $markets->getCollection()->transform(function ($market) {
+        if (isset($market->img)) {
+            if (filter_var($market->img, FILTER_VALIDATE_URL)) {
+                $market->img = $market->img; 
+            } else {
+                $market->img = asset('storage/' . $market->img); 
+            }
+        }
+        return $market;
+    });
+
+    return response()->json($markets);
+}
+
 
     public function store(Request $request)
     {
