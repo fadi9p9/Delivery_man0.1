@@ -21,6 +21,17 @@ class CategoryController extends Controller
 
         $categories = $query->paginate($request->get('per_page', 16));
 
+        $categories->getCollection()->transform(function ($category) {
+            if (isset($category->img)) {
+                if (filter_var($category->img, FILTER_VALIDATE_URL)) {
+                    $category->img = $category->img; 
+                } else {
+                    $category->img = asset('storage/' . $category->img); 
+                }
+            }
+            return $category;
+        });
+
         return response()->json($categories);
     }
 

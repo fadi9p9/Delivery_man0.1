@@ -10,34 +10,34 @@ use Symfony\Component\Mime\Part\Multipart\FormDataPart;
 
 class MarketController extends Controller
 {
-    public function index(Request $request) 
-{
-    $search = $request->get('search', null);
+    public function index(Request $request)
+    {
+        $search = $request->get('search', null);
 
-    $query = Market::query();
+        $query = Market::query();
 
-    if ($search) {
-        $query->where(function ($q) use ($search) {
-            $q->where('title', 'like', "%{$search}%")
-              ->orWhere('description', 'like', "%{$search}%");
-        });
-    }
-
-    $markets = $query->paginate($request->get('per_page', 16));
-
-    $markets->getCollection()->transform(function ($market) {
-        if (isset($market->img)) {
-            if (filter_var($market->img, FILTER_VALIDATE_URL)) {
-                $market->img = $market->img; 
-            } else {
-                $market->img = asset('storage/' . $market->img); 
-            }
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('title', 'like', "%{$search}%")
+                    ->orWhere('description', 'like', "%{$search}%");
+            });
         }
-        return $market;
-    });
 
-    return response()->json($markets);
-}
+        $markets = $query->paginate($request->get('per_page', 16));
+
+        $markets->getCollection()->transform(function ($market) {
+            if (isset($market->img)) {
+                if (filter_var($market->img, FILTER_VALIDATE_URL)) {
+                    $market->img = $market->img;
+                } else {
+                    $market->img = asset('storage/' . $market->img);
+                }
+            }
+            return $market;
+        });
+
+        return response()->json($markets);
+    }
 
 
     public function store(Request $request)
@@ -104,12 +104,12 @@ class MarketController extends Controller
 
         if ($market->img) {
             if (filter_var($market->img, FILTER_VALIDATE_URL)) {
-                $market->img = $market->img; 
+                $market->img = $market->img;
             } else {
-                $market->img = asset('storage/' . $market->img); 
+                $market->img = asset('storage/' . $market->img);
             }
         } else {
-            $market->img = null; 
+            $market->img = null;
         }
 
         return response()->json($market);
@@ -156,8 +156,21 @@ class MarketController extends Controller
     {
         $limit = $request->get('limit', 12);
         $markets = Market::orderBy('rating', 'desc')->take($limit)->get();
+
+        $markets->transform(function ($market) {
+            if (isset($market->img)) {
+                if (filter_var($market->img, FILTER_VALIDATE_URL)) {
+                    $market->img = $market->img;
+                } else {
+                    $market->img = asset('storage/' . $market->img);
+                }
+            }
+            return $market;
+        });
+
         return response()->json(['market' => $markets]);
     }
+
 
     // new function 
     /**
