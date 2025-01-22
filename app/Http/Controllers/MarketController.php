@@ -100,7 +100,7 @@ class MarketController extends Controller
 
     public function show($id)
     {
-        $market = Market::with('products')->findOrFail($id);
+        $market = Market::with('products.images')->findOrFail($id);
 
         if ($market->img) {
             if (filter_var($market->img, FILTER_VALIDATE_URL)) {
@@ -112,8 +112,19 @@ class MarketController extends Controller
             $market->img = null;
         }
 
+        $market->products->each(function ($product) {
+            $product->images->transform(function ($image) {
+                if (filter_var($image->path, FILTER_VALIDATE_URL)) {
+                    return $image->path;
+                } else {
+                    return asset('storage/' . $image->url);
+                }
+            });
+        });
+
         return response()->json($market);
     }
+
 
 
     public function destroy($id)
