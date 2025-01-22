@@ -2,11 +2,19 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Middleware\CheckAdmin;
 use App\Models\productImage;
 use Illuminate\Http\Request;
 
 class productImageController extends Controller
 {
+    // public function __construct()
+    // {
+    //     // Apply middleware only on 'store' and 'update' methods
+    //     // $this->middleware('checkAdmin')->only(['store', 'update']);
+    //     $this->middleware(CheckAdmin::class)->only(['store', 'update']);
+
+    // }
     public function store(Request $request)
     {
         $validated = $request->validate([

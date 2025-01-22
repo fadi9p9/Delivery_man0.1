@@ -31,4 +31,22 @@ class FavoriteController extends Controller
         $favorite->delete();
         return response()->json(['message' => 'Favorite item removed successfully']);
     }
+
+    public function isProductInFavorites($userId, $productId)
+    {
+        $favorite = Favorite::where('userId', $userId)
+            ->where('productId', $productId)
+            ->first();
+
+        if ($favorite) {
+            return response()->json([
+                'product_in_favorites' => true,
+                'id' => $favorite->id, 
+            ], 200);
+        }
+
+        return response()->json([
+            'product_in_favorites' => false,
+        ], 200);
+    }
 }

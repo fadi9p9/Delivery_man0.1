@@ -17,9 +17,14 @@ class CheckDeliveryMan
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (Auth::user() && Auth::user()->role !== 'Admin' && Auth::user()->role !== 'DeliveryMan') {
+        if (!Auth::guard('sanctum')->check()) {
+            return new Response('Unauthorized', 403);
+        }
+    
+        if (Auth::guard('sanctum')->user()->role !== 'Admin' && Auth::guard('sanctum')->user()->role !== 'DeliveryMan') {
             return new Response('Forbidden', 403);
         }
+
         return $next($request);
     }
 }

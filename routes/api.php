@@ -54,26 +54,38 @@ Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
 });
 
 // Users routes
-Route::get('/users/vendors', [UserController::class, "getVendors"]);
-Route::apiResource('users', UserController::class);
 Route::post('users/update/{id}', [UserController::class, "updateuser"]);
+Route::middleware(['checkAdmin'])->group(function () {
+    Route::apiResource('users', UserController::class)->except(['show']);
+    Route::get('/users/vendors', [UserController::class, "getVendors"]);
+});
+Route::apiResource('users', UserController::class)->only(['show']);
+
 
 // Markets routes
-Route::apiResource('markets', MarketController::class);
-Route::post('markets/update/{id}', [MarketController::class,"updateMarket"]);
+Route::middleware('checkVendor')->group(function () {
+    Route::apiResource('markets', MarketController::class)->except(['index','show','store']);
+    Route::get('/market/titles', [MarketController::class, 'marketsTitles']);
+    Route::post('markets/update/{id}', [MarketController::class,"updateMarket"]);
+});
+Route::apiResource('markets',MarketController::class)->only('store')->middleware('checkAdmin');
+Route::apiResource('markets', MarketController::class)->only(['index','show']);
 Route::post('markets/rate/{id}', [MarketController::class, 'rateMarket'])->name('markets.rate');
-// GET /api/market/toprate?limit=5
 route::get('/market/toprate', [MarketController::class, 'MarketTopRate']);
-Route::get('/market/titles', [MarketController::class, 'marketsTitles']);
+Route::get('/markets/{id}/categories', [MarketController::class, 'categories']);
 
 // Products routes
-Route::apiResource('products', ProductController::class);
-Route::post('products/rate/{id}', [ProductController::class, 'rateProduct'])->name('products.rate');
-// GET /api/product/toprate?limit=5
-route::get('product/toprate', [ProductController::class, 'productTopRate']);
-// Images routes
+Route::middleware('checkVendor')->group(function () {
+    Route::apiResource('products', ProductController::class)->except(['index','show']);
+});
+Route::apiResource('products', ProductController::class)->only(['index','show']);
 
-Route::apiResource('images', productImageController::class);
+Route::post('products/rate/{id}', [ProductController::class, 'rateProduct'])->name('products.rate');
+route::get('product/toprate', [ProductController::class, 'productTopRate']);
+
+// Images routes
+Route::apiResource('images', productImageController::class)->middleware('checkVendor');
+
 // Carts routes
 Route::apiResource('carts', CartController::class);
 Route::post('/carts/{cart}/add-item', [CartController::class, 'addItem'])->name('carts.addItem');
@@ -83,22 +95,27 @@ Route::delete('/carts/{cart}/remove-item/{item}', [CartController::class, 'remov
 Route::apiResource('cart-items', CartItemController::class);
 
 // Orders routes
+Route::get('/orders/user/{customerId}', [OrderController::class, 'getCustomerOrders']);
+Route::put('/orders/{orderId}/status', [OrderController::class, 'updateStatus'])->middleware('checkDeliveryMan');
 Route::apiResource('orders', OrderController::class);
-// Order status routes !!!!!!!!!!!!!!!!!!!!!!!!!
-Route::put('/orders/{orderId}/status', [OrderController::class, 'updateStatus']);
 
 // Categories routes
-Route::apiResource('categories', CategoryController::class);
+Route::apiResource('categories', CategoryController::class)->except(['store','destroy']);
+Route::apiResource('categories', CategoryController::class)->only(['store','destroy'])->middleware('checkAdmin');
 Route::get('categories/{id}/products', [CategoryController::class, 'products']);
-Route::post('categories/update/{id}', [CategoryController::class, 'updateCategory']);
-route::get('/category/titles', [CategoryController::class, 'categoriesTitles']);
+Route::post('categories/update/{id}', [CategoryController::class, 'updateCategory'])->middleware('checkAdmin');
+route::get('/category/titles', [CategoryController::class, 'categoriesTitles'])->middleware('checkVendor');
+Route::get('/categories/{id}/markets', [CategoryController::class, 'markets']);
 
 // Subcategories routes
-Route::apiResource('subcategories', SubcategoryController::class);
-route::get('/subcategory/titles', [SubcategoryController::class, 'subcategoriesTitles']);
+Route::apiResource('subcategories', SubcategoryController::class)->except(['store','destroy','update']);
+Route::apiResource('subcategories', SubcategoryController::class)->only(['store','destroy','update'])->middleware('checkAdmin');
+route::get('/subcategory/titles', [SubcategoryController::class, 'subcategoriesTitles'])->middleware('checkVendor');
 
 // Favorites routes
-Route::get('users/{userId}/favorites', [FavoriteController::class, 'userFavorite'])->middleware(CheckAdmin::class);
+// ->middleware(CheckAdmin::class)
+Route::get('users/{userId}/favorites', [FavoriteController::class, 'userFavorite']);
+Route::get('/favorites/check/{userId}/{productId}', [FavoriteController::class, 'isProductInFavorites']);
 Route::apiResource('favorites', FavoriteController::class);
 
 Route::post('/send-verification-code', [TelegramController::class, 'sendVerificationCode']);
@@ -107,11 +124,7 @@ Route::get('/get-updates', [PasswordResetLinkController::class, 'getChatId']);
 
 // new routes 
 
-Route::get('/categories/{id}/markets', [CategoryController::class, 'markets']);
 // Route::get('/categories/{id}/markets', [CategoryController::class, 'markets'])->middleware('checkAdmin');
 // GET /api/categories/1/markets?search=laptop&page=2&per_page=5
 // GET /api/categories/1/markets
  
-Route::get('/markets/{id}/categories', [MarketController::class, 'categories']);
-// GET /api/markets/1/categories?search=electronics&page=1&per_page=10
-// GET /api/markets/1/categories

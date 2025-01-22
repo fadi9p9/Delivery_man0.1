@@ -27,8 +27,12 @@ class UserController extends Controller
         $users = $query->paginate($request->get('per_page', 16));
 
         $users->getCollection()->transform(function ($user) {
-            if ($user->img) {
-                $user->img = asset('storage/' . $user->img);
+            if (isset($user->img)) {
+                if (filter_var($user->img, FILTER_VALIDATE_URL)) {
+                    $user->img = $user->img; 
+                } else {
+                    $user->img = asset('storage/' . $user->img); 
+                }
             }
             return $user;
         });
@@ -42,7 +46,13 @@ class UserController extends Controller
         $user = User::findOrFail($id);
 
         if ($user->img) {
-            $user->img = asset('storage/' . $user->img);
+            if (filter_var($user->img, FILTER_VALIDATE_URL)) {
+                $user->img = $user->img; 
+            } else {
+                $user->img = asset('storage/' . $user->img); 
+            }
+        } else {
+            $user->img = null; 
         }
 
         return response()->json($user);
@@ -89,7 +99,7 @@ class UserController extends Controller
     }
 
 
-    public function update(Request $request, $id)
+    public function updateuser(Request $request, $id)
     {
         $user = User::findOrFail($id);
 

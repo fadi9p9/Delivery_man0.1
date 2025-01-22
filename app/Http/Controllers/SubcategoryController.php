@@ -2,14 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\SubCategory;
+use App\Models\Subcategory;
 use Illuminate\Http\Request;
 
 class SubCategoryController extends Controller
 {
     public function index(Request $request)
     {
-        $subcategories = SubCategory::with('category')->paginate($request->get('per_page', 16));
+        $subcategories = Subcategory::with('category')->paginate($request->get('per_page', 16));
         return response()->json($subcategories);
     }
 
@@ -20,19 +20,19 @@ class SubCategoryController extends Controller
             'categoryId' => 'required|exists:categories,id',
         ]);
 
-        $subcategory = SubCategory::create($validated);
+        $subcategory = Subcategory::create($validated);
         return response()->json(['message' => 'SubCategory created successfully', 'subcategory' => $subcategory], 201);
     }
 
     public function show($id)
     {
-        $subcategory = SubCategory::with('category')->findOrFail($id);
+        $subcategory = Subcategory::with('category')->findOrFail($id);
         return response()->json($subcategory);
     }
 
     public function update(Request $request, $id)
     {
-        $subcategory = SubCategory::findOrFail($id);
+        $subcategory = Subcategory::findOrFail($id);
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'categoryId' => 'required|exists:categories,id',
@@ -44,14 +44,14 @@ class SubCategoryController extends Controller
 
     public function destroy($id)
     {
-        $subcategory = SubCategory::findOrFail($id);
+        $subcategory = Subcategory::findOrFail($id);
         $subcategory->delete();
         return response()->json(['message' => 'SubCategory deleted successfully']);
     }
 
     public function subcategoriesTitles(Request $request)
     {
-        $subcategories = SubCategory::select('id', 'name')->get();
+        $subcategories = Subcategory::select('id', 'name')->get();
 
         return response()->json($subcategories);
     }

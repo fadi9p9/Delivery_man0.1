@@ -118,4 +118,33 @@ class OrderController extends Controller
             'order' => $order,
         ]);
     }
+
+    public function getCustomerOrders($customerId)
+{
+    $orders = Order::where('customerId', $customerId)
+        ->with('cart.cartItems.product') 
+        ->get();
+
+    if ($orders->isEmpty()) {
+        return response()->json(['message' => 'No orders found for this customer.'], 404);
+    }
+
+    $formattedOrders = $orders->map(function ($order) {
+        return [
+            'orderId' => $order->orderId,
+            'status' => $order->status,
+            'orderLocation' => $order->orderLocation,
+            'cartItems' => $order->cart->cartItems->map(function ($item) {
+                return [
+                    'cartItemId' => $item->id,
+                    'quantity' => $item->quantity,
+                    'product' => $item->product ?? 'Unknown', 
+                ];
+            }),
+        ];
+    });
+
+    return response()->json($formattedOrders, 200);
+}
+
 }
